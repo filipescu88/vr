@@ -1,32 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>VR dwa kwadraty poprawione</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://unpkg.com/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <meta charset="utf-8">
+    <title>VR Obsidian Graph Test</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
 </head>
 <body>
-  <a-scene>
-    <a-sky color="#ECECEC"></a-sky>
-    <a-entity light="type: ambient; intensity: 0.5"></a-entity>
-    <a-entity light="type: directional; intensity: 0.8" position="1 3 1"></a-entity>
+    <a-scene 
+        vr-mode-ui="enabled: true"
+        renderer="antialias: true;"
+        webxr="optionalFeatures: local-floor; requiredFeatures: local-floor;"
+        xr-mode="enabled: true"
+        cursor="rayOrigin: mouse">
 
-    <a-box position="-1 1 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-    <a-box position="1 1 -3" color="#FF5733"></a-box>
+        <!-- Podstawowe środowisko -->
+        <a-entity environment="preset: forest; dressingAmount: 100"></a-entity>
+        
+        <!-- Źródło światła -->
+        <a-entity light="type: directional; color: #FFFFFF; intensity: 0.8" 
+                  position="-1 2 1"></a-entity>
+        
+        <!-- Kamer VR -->
+        <a-entity id="rig" position="0 1.6 0">
+            <a-camera id="camera" position="0 1.6 0" wasd-controls="enabled: false">
+                <a-cursor></a-cursor>
+            </a-camera>
+            <a-entity 
+                oculus-touch-controls="hand: left" 
+                haptic="enabled: true"
+                position="-0.2 -0.1 -0.5"></a-entity>
+            <a-entity 
+                oculus-touch-controls="hand: right" 
+                line="color: #118A7E; opacity: 0.75"
+                raycaster="objects: .clickable"
+                haptic="enabled: true"
+                position="0.2 -0.1 -0.5"></a-entity>
+        </a-entity>
 
-    <a-plane position="0 0 0" rotation="-90 0 0" width="30" height="30" color="#7BC8A4"></a-plane>
+        <!-- Przykładowe węzły reprezentujące notatki -->
+        <a-entity class="clickable" position="-1 1.5 -3">
+            <a-sphere 
+                color="#118A7E" 
+                radius="0.2"
+                animation="property: position; dir: alternate; dur: 2000; loop: true; to: -1 1.8 -3">
+            </a-sphere>
+            <a-text 
+                value="Filozofia" 
+                position="0 0.4 0" 
+                color="white"
+                scale="2 2 2"></a-text>
+        </a-entity>
 
-    <a-entity id="rig" movement-controls="constrainToNavMesh: false; collisionEntities: a-plane" position="0 1.6 0">
-      <a-entity camera look-controls></a-entity>
+        <a-entity class="clickable" position="1 1.5 -3">
+            <a-sphere 
+                color="#FFA41B" 
+                radius="0.2"
+                animation="property: position; dir: alternate; dur: 2000; loop: true; to: 1 1.8 -3">
+            </a-sphere>
+            <a-text 
+                value="Epistemologia" 
+                position="0 0.4 0" 
+                color="white"
+                scale="1.5 1.5 1.5"></a-text>
+        </a-entity>
 
-      <a-entity laser-controls="hand: left"
-                teleport-controls="button: trigger; collisionEntities: a-plane; curveShootingSpeed: 20">
-      </a-entity>
-      <a-entity laser-controls="hand: right"
-                teleport-controls="button: trigger; collisionEntities: a-plane; curveShootingSpeed: 20">
-      </a-entity>
-    </a-entity>
-  </a-scene>
+        <a-entity class="clickable" position="0 1.5 -4">
+            <a-sphere 
+                color="#8E0505" 
+                radius="0.2"
+                animation="property: position; dir: alternate; dur: 2000; loop: true; to: 0 1.8 -4">
+            </a-sphere>
+            <a-text 
+                value="Platon" 
+                position="0 0.4 0" 
+                color="white"
+                scale="2 2 2"></a-text>
+        </a-entity>
+
+        <!-- Połączenia między węzłami -->
+        <a-entity line="start: -1 1.5 -3; end: 1 1.5 -3; color: #A0A0A0"></a-entity>
+        <a-entity line="start: -1 1.5 -3; end: 0 1.5 -4; color: #A0A0A0"></a-entity>
+        
+        <!-- Panel informacyjny -->
+        <a-entity id="info-panel" position="0 2 -2" visible="false">
+            <a-plane 
+                color="#202020" 
+                width="1.8" 
+                height="0.8" 
+                opacity="0.9">
+            </a-plane>
+            <a-text 
+                id="panel-text" 
+                value="Wybierz węzeł" 
+                position="0 0.2 0.01" 
+                width="1.5"
+                align="center"
+                color="white"></a-text>
+        </a-entity>
+
+        <!-- Skrypt sterujący -->
+        <script>
+            AFRAME.registerComponent('node-interaction', {
+                init: function() {
+                    const panel = document.getElementById('info-panel');
+                    const panelText = document.getElementById('panel-text');
+                    
+                    this.el.addEventListener('raycaster-intersected', evt => {
+                        this.el.setAttribute('scale', '1.2 1.2 1.2');
+                    });
+                    
+                    this.el.addEventListener('raycaster-intersected-cleared', evt => {
+                        this.el.setAttribute('scale', '1 1 1');
+                    });
+                    
+                    this.el.addEventListener('gripdown', evt => {
+                        const title = this.el.querySelector('a-text').getAttribute('value');
+                        panelText.setAttribute('value', `Wybrano: ${title}\nŁadowanie treści...`);
+                        panel.setAttribute('visible', 'true');
+                        
+                        // Ukryj panel po 3 sekundach
+                        setTimeout(() => {
+                            panel.setAttribute('visible', 'false');
+                        }, 3000);
+                    });
+                }
+            });
+
+            // Dodaj komponent do wszystkich klikalnych elementów
+            document.querySelectorAll('.clickable').forEach(el => {
+                el.setAttribute('node-interaction', '');
+            });
+        </script>
+    </a-scene>
 </body>
 </html>
