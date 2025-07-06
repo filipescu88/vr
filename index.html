@@ -2,134 +2,185 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>VR Obsidian Graph Test</title>
+    <title>VR Obsidian Test - Fixed</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <!-- Dodajemy komponenty dla kontrolerów Oculus -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #info { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            color: white; 
+            font-family: monospace;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            z-index: 1000;
+        }
+    </style>
 </head>
 <body>
+    <div id="info">Ładowanie... (Użyj triggera do interakcji)</div>
+    
     <a-scene 
         vr-mode-ui="enabled: true"
         renderer="antialias: true;"
-        webxr="optionalFeatures: local-floor; requiredFeatures: local-floor;"
-        xr-mode="enabled: true"
-        cursor="rayOrigin: mouse">
+        webxr="
+            optionalFeatures: local-floor; 
+            requiredFeatures: local-floor, controllers;
+        "
+        xr-mode="enabled: true">
 
-        <!-- Podstawowe środowisko -->
-        <a-entity environment="preset: forest; dressingAmount: 100"></a-entity>
+        <!-- Środowisko -->
+        <a-entity environment="preset: starry; groundColor: #445"></a-entity>
         
         <!-- Źródło światła -->
-        <a-entity light="type: directional; color: #FFFFFF; intensity: 0.8" 
-                  position="-1 2 1"></a-entity>
+        <a-entity light="type: ambient; intensity: 0.6"></a-entity>
+        <a-entity light="type: directional; intensity: 0.8" position="-1 3 1"></a-entity>
         
-        <!-- Kamer VR -->
+        <!-- Kamera VR z kontrolerami -->
         <a-entity id="rig" position="0 1.6 0">
             <a-camera id="camera" position="0 1.6 0" wasd-controls="enabled: false">
-                <a-cursor></a-cursor>
+                <a-cursor raycaster="objects: .interactive"></a-cursor>
             </a-camera>
+            
+            <!-- Lewy kontroler -->
             <a-entity 
-                oculus-touch-controls="hand: left" 
+                hand-controls="hand: left" 
+                oculus-touch-controls="hand: left"
                 haptic="enabled: true"
-                position="-0.2 -0.1 -0.5"></a-entity>
+                position="-0.2 -0.1 -0.5">
+            </a-entity>
+            
+            <!-- Prawy kontroler (główny do interakcji) -->
             <a-entity 
-                oculus-touch-controls="hand: right" 
-                line="color: #118A7E; opacity: 0.75"
-                raycaster="objects: .clickable"
+                hand-controls="hand: right" 
+                oculus-touch-controls="hand: right"
+                raycaster="objects: .interactive; far: 20"
+                line="color: #0ff; opacity: 0.75; visible: false"
                 haptic="enabled: true"
-                position="0.2 -0.1 -0.5"></a-entity>
+                position="0.2 -0.1 -0.5">
+            </a-entity>
         </a-entity>
 
-        <!-- Przykładowe węzły reprezentujące notatki -->
-        <a-entity class="clickable" position="-1 1.5 -3">
-            <a-sphere 
-                color="#118A7E" 
-                radius="0.2"
-                animation="property: position; dir: alternate; dur: 2000; loop: true; to: -1 1.8 -3">
-            </a-sphere>
-            <a-text 
-                value="Filozofia" 
-                position="0 0.4 0" 
-                color="white"
-                scale="2 2 2"></a-text>
+        <!-- Przykładowe węzły -->
+        <a-entity class="interactive" position="-1 1.5 -3" data-title="Filozofia">
+            <a-sphere color="#118A7E" radius="0.2"></a-sphere>
+            <a-text value="Filozofia" position="0 0.4 0" color="white" scale="1.5 1.5 1.5"></a-text>
         </a-entity>
 
-        <a-entity class="clickable" position="1 1.5 -3">
-            <a-sphere 
-                color="#FFA41B" 
-                radius="0.2"
-                animation="property: position; dir: alternate; dur: 2000; loop: true; to: 1 1.8 -3">
-            </a-sphere>
-            <a-text 
-                value="Epistemologia" 
-                position="0 0.4 0" 
-                color="white"
-                scale="1.5 1.5 1.5"></a-text>
+        <a-entity class="interactive" position="1 1.5 -3" data-title="Epistemologia">
+            <a-sphere color="#FFA41B" radius="0.2"></a-sphere>
+            <a-text value="Epistemologia" position="0 0.4 0" color="white" scale="1.2 1.2 1.2"></a-text>
         </a-entity>
 
-        <a-entity class="clickable" position="0 1.5 -4">
-            <a-sphere 
-                color="#8E0505" 
-                radius="0.2"
-                animation="property: position; dir: alternate; dur: 2000; loop: true; to: 0 1.8 -4">
-            </a-sphere>
-            <a-text 
-                value="Platon" 
-                position="0 0.4 0" 
-                color="white"
-                scale="2 2 2"></a-text>
+        <a-entity class="interactive" position="0 1.5 -4" data-title="Platon">
+            <a-sphere color="#8E0505" radius="0.2"></a-sphere>
+            <a-text value="Platon" position="0 0.4 0" color="white" scale="1.5 1.5 1.5"></a-text>
         </a-entity>
 
-        <!-- Połączenia między węzłami -->
-        <a-entity line="start: -1 1.5 -3; end: 1 1.5 -3; color: #A0A0A0"></a-entity>
-        <a-entity line="start: -1 1.5 -3; end: 0 1.5 -4; color: #A0A0A0"></a-entity>
-        
         <!-- Panel informacyjny -->
         <a-entity id="info-panel" position="0 2 -2" visible="false">
-            <a-plane 
-                color="#202020" 
-                width="1.8" 
-                height="0.8" 
-                opacity="0.9">
-            </a-plane>
-            <a-text 
-                id="panel-text" 
-                value="Wybierz węzeł" 
-                position="0 0.2 0.01" 
-                width="1.5"
-                align="center"
-                color="white"></a-text>
+            <a-plane color="#202020" width="2" height="1" opacity="0.9"></a-plane>
+            <a-text id="panel-title" value="Tytuł" position="0 0.2 0.01" width="1.8" align="center" color="#0ff"></a-text>
+            <a-text id="panel-desc" value="Opis" position="0 -0.2 0.01" width="1.8" align="center" color="white" scale="0.8 0.8 0.8"></a-text>
         </a-entity>
 
         <!-- Skrypt sterujący -->
         <script>
-            AFRAME.registerComponent('node-interaction', {
+            // Stan aplikacji
+            const state = {
+                activeNode: null,
+                lastControllerUpdate: 0
+            };
+
+            // Inicjalizacja kontrolerów
+            AFRAME.registerComponent('controller-listener', {
                 init: function() {
-                    const panel = document.getElementById('info-panel');
-                    const panelText = document.getElementById('panel-text');
+                    const controller = this.el;
+                    const scene = document.querySelector('a-scene');
                     
-                    this.el.addEventListener('raycaster-intersected', evt => {
-                        this.el.setAttribute('scale', '1.2 1.2 1.2');
+                    // Pokazuj laser tylko gdy coś wskazujemy
+                    controller.addEventListener('raycaster-intersection', (e) => {
+                        controller.setAttribute('line', 'visible', true);
                     });
                     
-                    this.el.addEventListener('raycaster-intersected-cleared', evt => {
-                        this.el.setAttribute('scale', '1 1 1');
+                    controller.addEventListener('raycaster-intersection-cleared', (e) => {
+                        controller.setAttribute('line', 'visible', false);
                     });
                     
-                    this.el.addEventListener('gripdown', evt => {
-                        const title = this.el.querySelector('a-text').getAttribute('value');
-                        panelText.setAttribute('value', `Wybrano: ${title}\nŁadowanie treści...`);
-                        panel.setAttribute('visible', 'true');
-                        
-                        // Ukryj panel po 3 sekundach
-                        setTimeout(() => {
-                            panel.setAttribute('visible', 'false');
-                        }, 3000);
+                    // Reakcja na przycisk trigger
+                    controller.addEventListener('buttondown', (e) => {
+                        if (e.detail.id === 'trigger') {
+                            const intersection = controller.components.raycaster.getIntersection();
+                            if (intersection) {
+                                const entity = intersection.object.el;
+                                if (entity.classList.contains('interactive')) {
+                                    selectNode(entity);
+                                }
+                            }
+                        }
                     });
                 }
             });
-
-            // Dodaj komponent do wszystkich klikalnych elementów
-            document.querySelectorAll('.clickable').forEach(el => {
-                el.setAttribute('node-interaction', '');
+            
+            // Funkcja obsługująca wybór węzła
+            function selectNode(node) {
+                state.activeNode = node;
+                
+                // Aktualizacja panelu
+                const title = node.getAttribute('data-title');
+                document.getElementById('panel-title').setAttribute('value', title);
+                document.getElementById('panel-desc').setAttribute('value', `Wybrano: ${title}\nData: ${new Date().toLocaleTimeString()}`);
+                
+                const panel = document.getElementById('info-panel');
+                panel.setAttribute('visible', 'true');
+                
+                // Animacja
+                node.setAttribute('animation', {
+                    property: 'scale',
+                    to: '1.5 1.5 1.5',
+                    dur: 300,
+                    easing: 'easeOutElastic'
+                });
+                
+                setTimeout(() => {
+                    node.removeAttribute('animation');
+                }, 500);
+                
+                // Wibracje kontrolera
+                const controller = document.querySelector('[hand-controls="hand: right"]');
+                controller.components.haptic.pulse(0.8, 200);
+            }
+            
+            // Gdy scena jest gotowa
+            document.querySelector('a-scene').addEventListener('loaded', () => {
+                // Aktualizuj informacje debugowe
+                setInterval(() => {
+                    const infoDiv = document.getElementById('info');
+                    const xrSession = document.querySelector('a-scene').systems['webxr'].session;
+                    
+                    infoDiv.innerHTML = `WebXR: ${xrSession ? 'Aktywny' : 'Nieaktywny'}<br>`;
+                    infoDiv.innerHTML += `Kontrolery: ${document.querySelectorAll('[oculus-touch-controls]').length}<br>`;
+                    
+                    if (state.activeNode) {
+                        infoDiv.innerHTML += `Aktywny węzeł: ${state.activeNode.getAttribute('data-title')}`;
+                    }
+                }, 1000);
+                
+                // Inicjalizuj kontrolery
+                document.querySelectorAll('[oculus-touch-controls]').forEach(controller => {
+                    controller.setAttribute('controller-listener', '');
+                });
+                
+                // Ukryj panel po 5 sekundach
+                setInterval(() => {
+                    if (state.activeNode) {
+                        document.getElementById('info-panel').setAttribute('visible', 'false');
+                        state.activeNode = null;
+                    }
+                }, 5000);
             });
         </script>
     </a-scene>
