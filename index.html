@@ -2,6 +2,7 @@
   <head>
     <title>VR Room - A-Frame</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.controls.min.js"></script>
   </head>
   <body>
     <a-scene vr-mode-ui="enabled: true" embedded style="height: 100vh; width: 100vw;">
@@ -13,11 +14,12 @@
         <a-mixin id="furniture-material" material="color: #B8860B; roughness: 0.7"></a-mixin>
       </a-assets>
 
-      <!-- Camera with WASD controls -->
+      <!-- Camera with WASD and gamepad controls -->
       <a-entity id="rig" position="0 1.6 2">
         <a-camera 
           look-controls="enabled: true" 
           wasd-controls="enabled: true; acceleration: 20"
+          gamepad-controls="enabled: true; controller: 0; movementControls: true; rotationControls: true"
           position="0 0 0">
         </a-camera>
       </a-entity>
