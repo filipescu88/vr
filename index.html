@@ -1,5 +1,5 @@
 <head>
-  <title>13ost Basic Super-Hands Example</title>
+  <title>11ost Basic Super-Hands Example</title>
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <script>
     delete AFRAME.components["grabbable"];
@@ -17,7 +17,7 @@
     <a-entity id="rig" position="0 1.6 0" 
               movement-controls="fly: true" 
               universal-controls
-              dynamic-body="shape: capsule; mass: 1; height: 1.6">
+              kinematic-body="radius: 0.4; height: 1.6">
       <a-camera></a-camera>
 
       <!-- Lewa ręka -->
