@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title> Basic Super-Hands Example</title>
+    <title>Most Basic Super-Hands Example with Flying</title>
     
     <!-- A-Frame -->
-    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
     <!-- Usunięcie potencjalnie nadpisanego komponentu grabbable -->
     <script>
@@ -24,8 +24,8 @@
     <a-scene>
       <a-assets></a-assets>
 
-      <!-- Kamera i ręce -->
-      <a-entity>
+      <!-- Kamera i ręce z lataniem -->
+      <a-entity movement-controls="fly: true">
         <a-camera></a-camera>
 
         <!-- Lewa ręka -->
