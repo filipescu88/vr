@@ -1,13 +1,18 @@
 <html>
   <head>
-    <title>A-Frame 1.7.0 Basic VR Interaction</title>
+    <title>Joystick</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   </head>
   <body>
     <a-scene vr-mode-ui="enabled: true" background="color: #ECECEC">
       
-      <!-- Kamera + kontrolery -->
-      <a-entity id="cameraRig" position="0 1.6 0">
+      <!-- Kamera + kontrolery + ruch joystickiem -->
+      <a-entity id="rig" position="0 1.6 0" 
+                gamepad-controls="enabled: true; movementEnabled: true; 
+                                 invertAxes: false; 
+                                 controller: 0; 
+                                 sensitivity: 0.1; 
+                                 speed: 0.1">
         <a-camera id="camera"></a-camera>
         
         <!-- Lewy kontroler z raycasterem i linią -->
@@ -48,7 +53,7 @@
       <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
       
       <script>
-        // Prosta obsługa kliknięcia na box
+        // Obsługa kliknięcia na box
         document.querySelectorAll('.clickable').forEach((el) => {
           el.addEventListener('click', () => {
             el.setAttribute('color', '#'+(Math.random()*0xFFFFFF<<0).toString(16)); // zmienia kolor na losowy
