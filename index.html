@@ -1,31 +1,66 @@
 <html>
   <head>
-    <title>Joystick Oculus</title>
+    <title>2Joystick</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script>
+      AFRAME.registerComponent('move-with-joystick', {
+        schema: {
+          speed: {type: 'number', default: 0.05}
+        },
+        init: function () {
+          this.rig = this.el;
+          this.camera = document.querySelector('#camera');
+        },
+        tick: function () {
+          const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+          if (!gamepads) return;
+
+          const gp = gamepads[0]; // zakładamy, że lewy kontroler jest pod indeksem 0
+          if (!gp) return;
+
+          const yAxis = gp.axes[1]; // oś pionowa joysticka
+
+          if (Math.abs(yAxis) > 0.1) {
+            const cameraObj = this.camera.object3D;
+            const direction = new THREE.Vector3();
+            cameraObj.getWorldDirection(direction);
+            direction.y = 0; // ignorujemy ruch w osi pionowej
+            direction.normalize();
+
+            // joystick do przodu to yAxis = -1, więc odwracamy znak
+            direction.multiplyScalar(-yAxis * this.data.speed);
+
+            const rigPos = this.rig.object3D.position;
+            rigPos.add(direction);
+          }
+        }
+      });
+    </script>
   </head>
   <body>
     <a-scene vr-mode-ui="enabled: true" background="color: #ECECEC">
       
-      <!-- Kamera + rig (ruch i kontrolery) -->
+      <!-- Kamera + kontrolery + ruch joystickiem -->
       <a-entity id="rig" position="0 1.6 0" 
-                gamepad-controls="enabled: true; movementEnabled: true; sensitivity: 0.1; speed: 0.1">
+                gamepad-controls="enabled: true; movementEnabled: true; sensitivity: 0.1; speed: 0.1"
+                move-with-joystick="speed: 0.1">
         <a-camera id="camera"></a-camera>
         
-        <!-- Lewy kontroler Oculus Touch -->
+        <!-- Lewy kontroler z raycasterem i linią -->
         <a-entity
-          id="leftController"
-          hand-controls="hand: left; handModelStyle: lowPoly; color: #FF0000"
+          hand-controls="left"
           raycaster="objects: .clickable"
-          line="color: green; opacity: 0.75"
+          line="color: green"
+          id="leftController"
           >
         </a-entity>
         
-        <!-- Prawy kontroler Oculus Touch -->
+        <!-- Prawy kontroler z raycasterem i linią -->
         <a-entity
-          id="rightController"
-          hand-controls="hand: right; handModelStyle: lowPoly; color: #0000FF"
+          hand-controls="right"
           raycaster="objects: .clickable"
-          line="color: blue; opacity: 0.75"
+          line="color: blue"
+          id="rightController"
           >
         </a-entity>
       </a-entity>
@@ -37,10 +72,11 @@
         color="red" 
         depth="0.5" 
         height="0.5" 
-        width="0.5">
+        width="0.5"
+        >
       </a-box>
       
-      <!-- Światła -->
+      <!-- Podstawowe światło -->
       <a-light type="ambient" color="#888"></a-light>
       <a-light type="directional" intensity="0.5" position="1 1 0.5"></a-light>
 
@@ -48,25 +84,13 @@
       <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
       
       <script>
-        // Obsługa triggerdown na kontrolerach
-        function setupControllerClicks(controllerId) {
-          const controller = document.getElementById(controllerId);
-          controller.addEventListener('triggerdown', () => {
-            const intersects = controller.components.raycaster.intersectedEls;
-            if (intersects.length > 0) {
-              intersects.forEach(el => {
-                if (el.classList.contains('clickable')) {
-                  // Zmień kolor na losowy
-                  el.setAttribute('color', '#' + Math.floor(Math.random()*16777215).toString(16));
-                  console.log(`Box clicked by ${controllerId}`);
-                }
-              });
-            }
+        // Obsługa kliknięcia na box
+        document.querySelectorAll('.clickable').forEach((el) => {
+          el.addEventListener('click', () => {
+            el.setAttribute('color', '#'+(Math.random()*0xFFFFFF<<0).toString(16)); // zmienia kolor na losowy
+            console.log('Box clicked!');
           });
-        }
-        
-        setupControllerClicks('leftController');
-        setupControllerClicks('rightController');
+        });
       </script>
       
     </a-scene>
