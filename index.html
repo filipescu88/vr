@@ -1,18 +1,18 @@
 <html>
   <head>
     <title>VR Room - A-Frame</title>
+    <!-- Najnowsze stabilne wersje bibliotek -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <!-- Zmiana kolejności ładowania skryptów -->
-    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.controls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/wmurphyrd/aframe-super-hands-component@v3.0.3/dist/super-hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ammo.js@0.0.10/ammo.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@c-frame/aframe-physics-system@4.2.3/dist/aframe-physics-system.min.js"></script>
+    <script src="https://unpkg.com/super-hands@3.0.5/dist/super-hands.min.js"></script>
   </head>
   <body>
-    <a-scene 
-      vr-mode-ui="enabled: true" 
-      embedded 
-      physics="driver: cannon; gravity: -9.8; debug: false"
+    <a-scene
+      vr-mode-ui="enabled: true"
+      embedded
       style="height: 100vh; width: 100vw;"
+      physics="driver: ammo; gravity: -9.8; debug: false;"
     >
       <!-- Assets -->
       <a-assets>
@@ -21,110 +21,58 @@
         <a-mixin id="furniture-material" material="color: #B8860B; roughness: 0.7"></a-mixin>
       </a-assets>
 
-      <!-- Poprawiona struktura kamery -->
+      <!-- Camera -->
       <a-entity id="rig" position="0 1.6 2">
         <a-entity
-          position="0 0 0"
           camera
+          position="0 0 0"
           look-controls
           wasd-controls="acceleration: 20"
-          gamepad-controls="controller: 0;"
         >
-          <!-- Przeniesienie komponentu super-hands -->
           <a-entity
             cursor="rayOrigin: mouse"
             raycaster="objects: .grabbable"
-            super-hands="colliderEvent: raycaster-intersection;
-                        colliderEventProperty: els;
-                        colliderEndEvent: raycaster-intersection-cleared;
-                        colliderEndEventProperty: clearedEls;"
+            super-hands
             position="0 0 -1"
           ></a-entity>
         </a-entity>
       </a-entity>
 
-      <!-- Room Structure (6x6 meters) -->
-      <!-- Podłoga -->
-      <a-plane 
-        mixin="floor-material"
-        position="0 0 0" 
-        rotation="-90 0 0" 
-        width="6" 
-        height="6"
-        static-body
-      ></a-plane>
-      
-      <!-- Sufit -->
-      <a-plane 
-        mixin="wall-material"
-        position="0 3 0" 
-        rotation="90 0 0" 
-        width="6" 
-        height="6"
-        static-body <!-- Dodano static-body -->
-      ></a-plane>
-      
-      <!-- Północna ściana -->
-      <a-plane 
-        mixin="wall-material"
-        position="0 1.5 -3" 
-        width="6" 
-        height="3"
-        static-body
-      ></a-plane>
-      
-      <!-- Południowa ściana -->
-      <a-plane 
-        mixin="wall-material"
-        position="0 1.5 3" 
-        rotation="0 180 0" 
-        width="6" 
-        height="3"
-        static-body
-      ></a-plane>
-      
-      <!-- Wschodnia ściana -->
-      <a-plane 
-        mixin="wall-material"
-        position="3 1.5 0" 
-        rotation="0 -90 0" 
-        width="6" 
-        height="3"
-        static-body
-      ></a-plane>
-      
-      <!-- Zachodnia ściana -->
-      <a-plane 
-        mixin="wall-material"
-        position="-3 1.5 0" 
-        rotation="0 90 0" 
-        width="6" 
-        height="3"
-        static-body
-      ></a-plane>
+      <!-- Room -->
+      <a-plane mixin="floor-material" position="0 0 0" rotation="-90 0 0" width="6" height="6" static-body></a-plane>
+      <a-plane mixin="wall-material" position="0 3 0" rotation="90 0 0" width="6" height="6" static-body></a-plane>
+      <a-plane mixin="wall-material" position="0 1.5 -3" width="6" height="3" static-body></a-plane>
+      <a-plane mixin="wall-material" position="0 1.5 3" rotation="0 180 0" width="6" height="3" static-body></a-plane>
+      <a-plane mixin="wall-material" position="3 1.5 0" rotation="0 -90 0" width="6" height="3" static-body></a-plane>
+      <a-plane mixin="wall-material" position="-3 1.5 0" rotation="0 90 0" width="6" height="3" static-body></a-plane>
 
-      <!-- Meble -->
-      <!-- Stół -->
+      <!-- Table -->
       <a-entity id="table" position="-1 0 -1" static-body>
-        <!-- ... (bez zmian w częściach stołu) ... -->
+        <a-box mixin="furniture-material" position="0 0.75 0" width="1.5" height="0.05" depth="0.8"></a-box>
+        <a-box mixin="furniture-material" position="-0.65 0.375 -0.35" width="0.05" height="0.75" depth="0.05"></a-box>
+        <a-box mixin="furniture-material" position="0.65 0.375 -0.35" width="0.05" height="0.75" depth="0.05"></a-box>
+        <a-box mixin="furniture-material" position="-0.65 0.375 0.35" width="0.05" height="0.75" depth="0.05"></a-box>
+        <a-box mixin="furniture-material" position="0.65 0.375 0.35" width="0.05" height="0.75" depth="0.05"></a-box>
       </a-entity>
 
-      <!-- Krzesło - poprawione atrybuty -->
-      <a-entity id="chair" position="-1 0.5 0.2" 
+      <!-- Chair -->
+      <a-entity id="chair" position="-1 0.5 0.2"
         class="grabbable"
         dynamic-body="mass: 5"
         grabbable
-        stretchable
         draggable
-        droppable
-      >
-        <!-- ... (bez zmian w częściach krzesła) ... -->
+        droppable>
+        <a-box mixin="furniture-material" position="0 0.45 0" width="0.5" height="0.05" depth="0.5"></a-box>
+        <a-box mixin="furniture-material" position="0 0.75 -0.225" width="0.5" height="0.6" depth="0.05"></a-box>
+        <a-box mixin="furniture-material" position="-0.2 0.225 -0.2" width="0.05" height="0.45" depth="0.05"></a-box>
+        <a-box mixin="furniture-material" position="0.2 0.225 -0.2" width="0.05" height="0.45" depth="0.05"></a-box>
+        <a-box mixin="furniture-material" position="-0.2 0.225 0.2" width="0.05" height="0.45" depth="0.05"></a-box>
+        <a-box mixin="furniture-material" position="0.2 0.225 0.2" width="0.05" height="0.45" depth="0.05"></a-box>
       </a-entity>
 
-      <!-- Oświetlenie -->
+      <!-- Lights -->
       <a-light type="ambient" color="#404040" intensity="0.4"></a-light>
       <a-light type="point" position="0 2.5 0" color="#FFFFFF" intensity="0.8"></a-light>
-      
     </a-scene>
   </body>
 </html>
