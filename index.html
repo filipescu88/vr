@@ -1,86 +1,98 @@
 <html>
   <head>
-    <title>Oculus Touch Movement</title>
+    <title>Joystick</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script>
+      AFRAME.registerComponent('move-with-thumbstick', {
+        schema: {
+          speed: { type: 'number', default: 0.1 }
+        },
+        init: function () {
+          this.rig = this.el;
+          this.camera = document.querySelector('#camera');
+          this.direction = new THREE.Vector3();
+
+          this.el.addEventListener('thumbstickmoved', (evt) => {
+            // Pobieramy osie joysticka
+            const x = evt.detail.x;
+            const y = evt.detail.y;
+
+            // Pomijamy drobne ruchy
+            if (Math.abs(x) < 0.1 && Math.abs(y) < 0.1) return;
+
+            // Kierunek patrzenia kamery
+            this.camera.object3D.getWorldDirection(this.direction);
+            this.direction.y = 0;
+            this.direction.normalize();
+
+            // Wektor prostopadły do kierunku patrzenia (w prawo)
+            const right = new THREE.Vector3();
+            right.crossVectors(this.direction, this.rig.object3D.up).normalize();
+
+            // Ruch w osi Y joysticka = ruch do przodu/tyłu
+            const moveForwardBackward = this.direction.clone().multiplyScalar(-y * this.data.speed);
+            // Ruch w osi X joysticka = ruch w prawo/lewo
+            const moveLeftRight = right.clone().multiplyScalar(x * this.data.speed);
+
+            // Dodajemy do pozycji rigi
+            this.rig.object3D.position.add(moveForwardBackward);
+            this.rig.object3D.position.add(moveLeftRight);
+          });
+        }
+      });
+    </script>
   </head>
   <body>
     <a-scene vr-mode-ui="enabled: true" background="color: #ECECEC">
-
-      <!-- Rig z kamerą -->
-      <a-entity id="rig" position="0 1.6 0">
-        <a-camera look-controls></a-camera>
+      
+      <!-- Rig z kamerą i kontrolerami -->
+      <a-entity id="rig" position="0 1.6 0" move-with-thumbstick>
+        <a-camera id="camera"></a-camera>
+        
+        <!-- Lewy kontroler z meta-touch-controls i raycasterem -->
+        <a-entity
+          id="leftController"
+          meta-touch-controls="hand: left"
+          raycaster="objects: .clickable"
+          line="color: green">
+        </a-entity>
+        
+        <!-- Prawy kontroler z meta-touch-controls i raycasterem -->
+        <a-entity
+          id="rightController"
+          meta-touch-controls="hand: right"
+          raycaster="objects: .clickable"
+          line="color: blue">
+        </a-entity>
       </a-entity>
-
-      <!-- Lewy kontroler z meta-touch-controls i nasłuchiwaniem joysticka -->
-      <a-entity id="leftController" meta-touch-controls="hand: left" move-with-thumbstick></a-entity>
-
-      <!-- Prawy kontroler -->
-      <a-entity meta-touch-controls="hand: right"></a-entity>
-
+      
       <!-- Klikalny box -->
-      <a-box class="clickable" position="0 1.5 -3" color="red" depth="0.5" height="0.5" width="0.5"></a-box>
-
+      <a-box 
+        class="clickable" 
+        position="0 1.5 -3" 
+        color="red" 
+        depth="0.5" 
+        height="0.5" 
+        width="0.5">
+      </a-box>
+      
       <!-- Światło -->
       <a-light type="ambient" color="#888"></a-light>
       <a-light type="directional" intensity="0.5" position="1 1 0.5"></a-light>
 
       <!-- Podłoga -->
       <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
-
+      
       <script>
-        // Klikalny box zmienia kolor
+        // Obsługa kliknięcia na box
         document.querySelectorAll('.clickable').forEach((el) => {
           el.addEventListener('click', () => {
-            el.setAttribute('color', '#' + (Math.random() * 0xFFFFFF << 0).toString(16));
+            el.setAttribute('color', '#'+(Math.random()*0xFFFFFF<<0).toString(16));
             console.log('Box clicked!');
           });
         });
-
-        // Komponent do ruchu rigu joystickiem lewego kontrolera
-        AFRAME.registerComponent('move-with-thumbstick', {
-          init: function () {
-            this.rig = document.querySelector('#rig');
-            this.el.addEventListener('thumbstickmoved', (evt) => {
-              // evt.detail.x, evt.detail.y - wartości joysticka od -1 do 1
-              const x = evt.detail.x; // lewo/prawo
-              const y = evt.detail.y; // przód/tył
-
-              // Prędkość poruszania
-              const speed = 0.05;
-
-              // Oblicz przesunięcie w lokalnym układzie rigu (kamera patrzy w przód w osi -Z)
-              let rigPosition = this.rig.getAttribute('position');
-
-              // Z ruchu joysticka zrobimy przesunięcie w przestrzeni świata
-              // Zakładamy, że Y to do przodu/tyłu na osi -Z
-              // X to przesunięcie w osi X (lewo/prawo)
-
-              // Pobierz kierunek przodu kamery bez Y (czyli patrzymy tylko poziomo)
-              let camera = this.rig.querySelector('a-camera');
-              let direction = new THREE.Vector3();
-              camera.object3D.getWorldDirection(direction);
-              direction.y = 0;
-              direction.normalize();
-
-              // Vector przesunięcia do przodu/tyłu
-              let forwardVector = direction.clone().multiplyScalar(-y * speed);
-
-              // Vector przesunięcia na boki
-              // Uzyskaj wektor "prawo" poprzez cross product z wektorem "up"
-              let upVector = new THREE.Vector3(0, 1, 0);
-              let rightVector = new THREE.Vector3();
-              rightVector.crossVectors(upVector, direction).normalize().multiplyScalar(x * speed);
-
-              // Nowa pozycja rigu = stara + forward + right
-              rigPosition.x += forwardVector.x + rightVector.x;
-              rigPosition.z += forwardVector.z + rightVector.z;
-
-              this.rig.setAttribute('position', rigPosition);
-            });
-          }
-        });
       </script>
-
+      
     </a-scene>
   </body>
 </html>
