@@ -1,5 +1,6 @@
 <head>
-  <title>11ost Basic Super-Hands Example</title>
+  <title>VR latanie z kolizją</title>
+  <meta charset="utf-8" />
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <script>
     delete AFRAME.components["grabbable"];
@@ -11,40 +12,49 @@
 
 <body>
   <a-scene physics="debug: false">
-    <a-assets></a-assets>
 
-    <!-- Kamera + poruszanie joystickiem + fizyka -->
-    <a-entity id="rig" position="0 1.6 0" 
-              movement-controls="fly: true" 
+    <!-- Gracz -->
+    <a-entity id="rig" position="0 2 0"
+              movement-controls="fly: true"
               universal-controls
               kinematic-body="radius: 0.4; height: 1.6">
-      <a-camera></a-camera>
+
+      <!-- Kamera (widok gracza) -->
+      <a-camera position="0 0 0"></a-camera>
+
+      <!-- Niewidzialne ciało kolizyjne -->
+      <a-cylinder position="0 -0.8 0"
+                  height="1.6"
+                  radius="0.4"
+                  visible="false">
+      </a-cylinder>
 
       <!-- Lewa ręka -->
-      <a-entity 
-        hand-controls="hand: left" 
-        super-hands 
-        sphere-collider="objects: a-box">
+      <a-entity hand-controls="hand: left"
+                super-hands
+                sphere-collider="objects: a-box">
       </a-entity>
 
       <!-- Prawa ręka -->
-      <a-entity 
-        hand-controls="hand: right" 
-        super-hands 
-        sphere-collider="objects: a-box">
+      <a-entity hand-controls="hand: right"
+                super-hands
+                sphere-collider="objects: a-box">
       </a-entity>
     </a-entity>
 
-    <!-- Przedmiot do interakcji -->
-    <a-box position="0 1 -3" 
-           color="blue" 
+    <!-- Przedmiot do złapania -->
+    <a-box position="0 1 -3"
+           color="blue"
            hoverable grabbable stretchable draggable droppable>
     </a-box>
 
-    <!-- Podłoga -->
-    <a-plane rotation="-90 0 0" width="10" height="10" 
-             color="#ccc" static-body>
+    <!-- Podłoga z kolizją -->
+    <a-plane rotation="-90 0 0"
+             width="20"
+             height="20"
+             color="#ccc"
+             static-body>
     </a-plane>
+
   </a-scene>
 </body>
-
