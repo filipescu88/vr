@@ -1,16 +1,54 @@
-<html>
+<!DOCTYPE html>
+<html lang="pl">
   <head>
-    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>Test super-hands + A-Frame 1.6.0</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://unpkg.com/super-hands@3.0.5/dist/super-hands.min.js"></script>
   </head>
   <body>
     <a-scene>
-      <a-entity id="leftHand" hand-controls="left" super-hands></a-entity>
-      <a-entity id="rightHand" hand-controls="right" super-hands></a-entity>
+      <!-- Kamera z kontrolerami VR i super-hands -->
+      <a-entity id="rig" position="0 1.6 0">
+        <a-entity
+          camera
+          look-controls
+          wasd-controls
+        >
+          <!-- Kontrolery z super-hands do interakcji -->
+          <a-entity
+            hand-controls="left"
+            super-hands
+            sphere-collider="objects: .grabbable"
+          ></a-entity>
+          <a-entity
+            hand-controls="right"
+            super-hands
+            sphere-collider="objects: .grabbable"
+          ></a-entity>
+        </a-entity>
+      </a-entity>
 
-      <a-box class="grabbable" grabbable position="0 1 -2" color="blue"></a-box>
+      <!-- Podłoga -->
+      <a-plane rotation="-90 0 0" width="6" height="6" color="#7BC8A4"></a-plane>
 
-      <a-sky color="#ECECEC"></a-sky>
+      <!-- Przedmiot do chwytania -->
+      <a-box
+        class="grabbable"
+        position="0 1 -1"
+        depth="0.5"
+        height="0.5"
+        width="0.5"
+        color="#4CC3D9"
+        dynamic-body
+        grabbable
+        draggable
+        droppable
+      ></a-box>
+
+      <!-- Światło -->
+      <a-light type="ambient" color="#BBB"></a-light>
+      <a-light type="point" intensity="1" position="2 4 4"></a-light>
     </a-scene>
   </body>
 </html>
