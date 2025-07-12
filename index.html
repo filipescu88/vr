@@ -3,6 +3,38 @@
     <title>Joystick</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script>
+      AFRAME.registerComponent('grab-on-trigger', {
+  init: function () {
+    this.grabbedEl = null;
+    this.raycaster = this.el.components.raycaster;
+
+    this.el.addEventListener('triggerdown', () => {
+      // Znajdź pierwszy trafiony obiekt
+      const intersects = this.raycaster.intersections;
+      if (intersects.length > 0) {
+        this.grabbedEl = intersects[0].object.el;
+        if (this.grabbedEl) {
+          // Przyłącz obiekt do kontrolera
+          this.el.appendChild(this.grabbedEl);
+          this.grabbedEl.setAttribute('position', '0 0 -0.5'); // trzymany 0.5m przed kontrolerem
+        }
+      }
+    });
+
+    this.el.addEventListener('triggerup', () => {
+      if (this.grabbedEl) {
+        // Odłącz obiekt i zostaw w scenie w miejscu, gdzie jest teraz kontroler
+        const worldPos = new THREE.Vector3();
+        this.grabbedEl.object3D.getWorldPosition(worldPos);
+        this.grabbedEl.parent.removeChild(this.grabbedEl);
+        this.el.sceneEl.appendChild(this.grabbedEl);
+        this.grabbedEl.object3D.position.copy(worldPos);
+        this.grabbedEl = null;
+      }
+    });
+  }
+});
+
       AFRAME.registerComponent('move-with-thumbstick', {
         schema: {
           speed: { type: 'number', default: 0.1 }
@@ -50,11 +82,12 @@
         <a-camera id="camera"></a-camera>
         
         <!-- Lewy kontroler z meta-touch-controls i raycasterem -->
-        <a-entity
+       <a-entity
           id="leftController"
           meta-touch-controls="hand: left"
           raycaster="objects: .clickable"
-          line="color: green">
+          line="color: green"
+          grab-on-trigger>
         </a-entity>
         
         <!-- Prawy kontroler z meta-touch-controls i raycasterem -->
