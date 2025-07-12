@@ -1,54 +1,62 @@
-<!DOCTYPE html>
-<html lang="pl">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <title>Test super-hands + A-Frame 1.6.0</title>
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/super-hands@3.0.5/dist/super-hands.min.js"></script>
+    <title>A-Frame 1.7.0 Basic VR Interaction</title>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   </head>
   <body>
-    <a-scene>
-      <!-- Kamera z kontrolerami VR i super-hands -->
-      <a-entity id="rig" position="0 1.6 0">
+    <a-scene vr-mode-ui="enabled: true" background="color: #ECECEC">
+      
+      <!-- Kamera + kontrolery -->
+      <a-entity id="cameraRig" position="0 1.6 0">
+        <a-camera id="camera"></a-camera>
+        
+        <!-- Lewy kontroler z raycasterem i linią -->
         <a-entity
-          camera
-          look-controls
-          wasd-controls
-        >
-          <!-- Kontrolery z super-hands do interakcji -->
-          <a-entity
-            hand-controls="left"
-            super-hands
-            sphere-collider="objects: .grabbable"
-          ></a-entity>
-          <a-entity
-            hand-controls="right"
-            super-hands
-            sphere-collider="objects: .grabbable"
-          ></a-entity>
+          hand-controls="left"
+          raycaster="objects: .clickable"
+          line="color: green"
+          id="leftController"
+          >
+        </a-entity>
+        
+        <!-- Prawy kontroler z raycasterem i linią -->
+        <a-entity
+          hand-controls="right"
+          raycaster="objects: .clickable"
+          line="color: blue"
+          id="rightController"
+          >
         </a-entity>
       </a-entity>
+      
+      <!-- Klikalny box -->
+      <a-box 
+        class="clickable" 
+        position="0 1.5 -3" 
+        color="red" 
+        depth="0.5" 
+        height="0.5" 
+        width="0.5"
+        >
+      </a-box>
+      
+      <!-- Podstawowe światło -->
+      <a-light type="ambient" color="#888"></a-light>
+      <a-light type="directional" intensity="0.5" position="1 1 0.5"></a-light>
 
       <!-- Podłoga -->
-      <a-plane rotation="-90 0 0" width="6" height="6" color="#7BC8A4"></a-plane>
-
-      <!-- Przedmiot do chwytania -->
-      <a-box
-        class="grabbable"
-        position="0 1 -1"
-        depth="0.5"
-        height="0.5"
-        width="0.5"
-        color="#4CC3D9"
-        dynamic-body
-        grabbable
-        draggable
-        droppable
-      ></a-box>
-
-      <!-- Światło -->
-      <a-light type="ambient" color="#BBB"></a-light>
-      <a-light type="point" intensity="1" position="2 4 4"></a-light>
+      <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
+      
+      <script>
+        // Prosta obsługa kliknięcia na box
+        document.querySelectorAll('.clickable').forEach((el) => {
+          el.addEventListener('click', () => {
+            el.setAttribute('color', '#'+(Math.random()*0xFFFFFF<<0).toString(16)); // zmienia kolor na losowy
+            console.log('Box clicked!');
+          });
+        });
+      </script>
+      
     </a-scene>
   </body>
 </html>
