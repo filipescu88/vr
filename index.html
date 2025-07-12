@@ -2,12 +2,11 @@
   <head>
     <title>VR Room - A-Frame</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.controls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/wmurphyrd/aframe-super-hands-component@v3.0.3/dist/super-hands.min.js"></script>
   </head>
   <body>
-    <a-scene vr-mode-ui="enabled: true" embedded style="height: 100vh; width: 100vw;" physics="driver: cannon; gravity: -9.8">
+    <a-scene vr-mode-ui="enabled: true" embedded style="height: 100vh; width: 100vw;" physics="driver: ammo; gravity: 0 -9.8 0">
       <!-- Assets -->
       <a-assets>
         <!-- Define materials for reuse -->
@@ -16,12 +15,11 @@
         <a-mixin id="furniture-material" material="color: #B8860B; roughness: 0.7"></a-mixin>
       </a-assets>
 
-      <!-- Camera with WASD and gamepad controls -->
+      <!-- Camera with WASD controls -->
       <a-entity id="rig" position="0 1.6 2">
         <a-camera 
           look-controls="enabled: true" 
           wasd-controls="enabled: true; acceleration: 20"
-          gamepad-controls="enabled: true; controller: 0; movementControls: true; rotationControls: true"
           position="0 0 0"
           cursor="rayOrigin: mouse"
           super-hands="colliderEvent: raycaster-intersection;
@@ -140,10 +138,7 @@
       <a-entity id="chair" position="-1 0.5 0.2" 
         class="grabbable"
         dynamic-body="mass: 5"
-        grabbable
-        stretchable
-        draggable
-        droppable>
+        grabbable>
         <!-- Chair seat -->
         <a-box 
           mixin="furniture-material"
