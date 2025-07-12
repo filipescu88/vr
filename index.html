@@ -1,75 +1,49 @@
 <html>
   <head>
-    <title>Joystick</title>
+    <title>Joystick Fly</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script>
-      AFRAME.registerComponent('grab-on-trigger', {
-  init: function () {
-    this.grabbedEl = null;
-    this.raycaster = this.el.components.raycaster;
-
-    this.el.addEventListener('triggerdown', () => {
-      // Znajdź pierwszy trafiony obiekt
-      const intersects = this.raycaster.intersections;
-      if (intersects.length > 0) {
-        this.grabbedEl = intersects[0].object.el;
-        if (this.grabbedEl) {
-          // Przyłącz obiekt do kontrolera
-          this.el.appendChild(this.grabbedEl);
-          this.grabbedEl.setAttribute('position', '0 0 -0.5'); // trzymany 0.5m przed kontrolerem
-        }
-      }
-    });
-
-    this.el.addEventListener('triggerup', () => {
-      if (this.grabbedEl) {
-        // Odłącz obiekt i zostaw w scenie w miejscu, gdzie jest teraz kontroler
-        const worldPos = new THREE.Vector3();
-        this.grabbedEl.object3D.getWorldPosition(worldPos);
-        this.grabbedEl.parent.removeChild(this.grabbedEl);
-        this.el.sceneEl.appendChild(this.grabbedEl);
-        this.grabbedEl.object3D.position.copy(worldPos);
-        this.grabbedEl = null;
-      }
-    });
-  }
-});
-
-      AFRAME.registerComponent('move-with-thumbstick', {
+      AFRAME.registerComponent('fly-with-joystick-full', {
         schema: {
-          speed: { type: 'number', default: 0.1 }
+          speed: {type: 'number', default: 0.1}
         },
         init: function () {
           this.rig = this.el;
           this.camera = document.querySelector('#camera');
-          this.direction = new THREE.Vector3();
+        },
+        tick: function () {
+          const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+          if (!gamepads) return;
 
-          this.el.addEventListener('thumbstickmoved', (evt) => {
-            // Pobieramy osie joysticka
-            const x = evt.detail.x;
-            const y = evt.detail.y;
+          const gp = gamepads[0]; // kontroler pod indexem 0
+          if (!gp) return;
 
-            // Pomijamy drobne ruchy
-            if (Math.abs(x) < 0.1 && Math.abs(y) < 0.1) return;
+          const yAxis = gp.axes[1]; // pionowa oś joysticka
+          const xAxis = gp.axes[0]; // pozioma oś joysticka
 
-            // Kierunek patrzenia kamery
-            this.camera.object3D.getWorldDirection(this.direction);
-            this.direction.y = 0;
-            this.direction.normalize();
+          if (Math.abs(yAxis) > 0.1 || Math.abs(xAxis) > 0.1) {
+            const cameraObj = this.camera.object3D;
+            const direction = new THREE.Vector3();
+            cameraObj.getWorldDirection(direction);
+            direction.normalize();
 
-            // Wektor prostopadły do kierunku patrzenia (w prawo)
-            const right = new THREE.Vector3();
-            right.crossVectors(this.direction, this.rig.object3D.up).normalize();
+            // ruch w osi pionowej (góra-dół) zgodnie z kierunkiem kamery
+            const upDown = direction.clone();
 
-            // Ruch w osi Y joysticka = ruch do przodu/tyłu
-            const moveForwardBackward = this.direction.clone().multiplyScalar(-y * this.data.speed);
-            // Ruch w osi X joysticka = ruch w prawo/lewo
-            const moveLeftRight = right.clone().multiplyScalar(x * this.data.speed);
+            // ruch w osi poziomej - boczne przesunięcie względem kierunku kamery
+            const side = new THREE.Vector3();
+            side.crossVectors(cameraObj.up, direction).normalize();
 
-            // Dodajemy do pozycji rigi
-            this.rig.object3D.position.add(moveForwardBackward);
-            this.rig.object3D.position.add(moveLeftRight);
-          });
+            // skalowanie kierunków przez wartość osi joysticka
+            const moveVector = new THREE.Vector3();
+            moveVector.add(side.multiplyScalar(-xAxis));
+            moveVector.add(upDown.multiplyScalar(-yAxis));
+
+            moveVector.multiplyScalar(this.data.speed);
+
+            // dodaj ruch do pozycji rig
+            this.rig.object3D.position.add(moveVector);
+          }
         }
       });
     </script>
@@ -77,50 +51,28 @@
   <body>
     <a-scene vr-mode-ui="enabled: true" background="color: #ECECEC">
       
-      <!-- Rig z kamerą i kontrolerami -->
-      <a-entity id="rig" position="0 1.6 0" move-with-thumbstick>
+      <!-- Kamera + rig z nowym komponentem latania -->
+      <a-entity id="rig" position="0 1.6 0" fly-with-joystick-full="speed: 0.1">
         <a-camera id="camera"></a-camera>
         
-        <!-- Lewy kontroler z meta-touch-controls i raycasterem -->
-       <a-entity
-          id="leftController"
-          meta-touch-controls="hand: left"
-          raycaster="objects: .clickable"
-          line="color: green"
-          grab-on-trigger>
-        </a-entity>
-        
-        <!-- Prawy kontroler z meta-touch-controls i raycasterem -->
-        <a-entity
-          id="rightController"
-          meta-touch-controls="hand: right"
-          raycaster="objects: .clickable"
-          line="color: blue">
-        </a-entity>
+        <!-- Kontrolery Meta Touch -->
+        <a-entity meta-touch-controls="hand: left" raycaster="objects: .clickable" line="color: green" id="leftController"></a-entity>
+        <a-entity meta-touch-controls="hand: right" raycaster="objects: .clickable" line="color: blue" id="rightController"></a-entity>
       </a-entity>
       
       <!-- Klikalny box -->
-      <a-box 
-        class="clickable" 
-        position="0 1.5 -3" 
-        color="red" 
-        depth="0.5" 
-        height="0.5" 
-        width="0.5">
-      </a-box>
+      <a-box class="clickable" position="0 1.5 -3" color="red" depth="0.5" height="0.5" width="0.5"></a-box>
       
-      <!-- Światło -->
+      <!-- Światło i podłoga -->
       <a-light type="ambient" color="#888"></a-light>
       <a-light type="directional" intensity="0.5" position="1 1 0.5"></a-light>
-
-      <!-- Podłoga -->
       <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
       
       <script>
         // Obsługa kliknięcia na box
         document.querySelectorAll('.clickable').forEach((el) => {
           el.addEventListener('click', () => {
-            el.setAttribute('color', '#'+(Math.random()*0xFFFFFF<<0).toString(16));
+            el.setAttribute('color', '#' + (Math.random() * 0xFFFFFF << 0).toString(16));
             console.log('Box clicked!');
           });
         });
