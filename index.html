@@ -1,7 +1,6 @@
 <html>
   <head>
     <title>VR Room - A-Frame</title>
-    <!-- Najnowsze stabilne wersje bibliotek -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ammo.js@0.0.10/ammo.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@c-frame/aframe-physics-system@4.2.3/dist/aframe-physics-system.min.js"></script>
@@ -14,20 +13,18 @@
       style="height: 100vh; width: 100vw;"
       physics="driver: ammo; gravity: -9.8; debug: false;"
     >
-      <!-- Assets -->
       <a-assets>
         <a-mixin id="wall-material" material="color: #E8E8E8; roughness: 0.8"></a-mixin>
         <a-mixin id="floor-material" material="color: #D4D4D4; roughness: 0.9"></a-mixin>
         <a-mixin id="furniture-material" material="color: #B8860B; roughness: 0.7"></a-mixin>
       </a-assets>
 
-      <!-- Camera rig -->
-      <a-entity id="rig" position="0 1.6 2">
+      <!-- Camera rig z movement-controls -->
+      <a-entity id="rig" position="0 1.6 2" movement-controls>
         <a-entity
           camera
           position="0 0 0"
           look-controls
-          wasd-controls="acceleration: 20"
         >
           <a-entity
             cursor="rayOrigin: mouse"
