@@ -1,60 +1,51 @@
-<head>
-  <title>VR latanie z kolizją</title>
-  <meta charset="utf-8" />
-  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-  <script>
-    delete AFRAME.components["grabbable"];
-  </script>
-  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.x/dist/aframe-extras.min.js"></script>
-  <script src="https://unpkg.com/super-hands@^3.0.5/dist/super-hands.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.3/dist/aframe-physics-system.min.js"></script>
-</head>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Latanie z kolizjami w A-Frame</title>
+    <meta charset="utf-8" />
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.x/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/super-hands@^3.0.5/dist/super-hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.3/dist/aframe-physics-system.min.js"></script>
+  </head>
+  <body>
+    <a-scene physics="gravity: 0 0 0" embedded>
 
-<body>
-  <a-scene physics="debug: false">
+      <!-- Gracz: kinematic-body + latanie + kolizje -->
+      <a-entity id="rig"
+                position="0 2 0"
+                movement-controls="fly: true"
+                universal-controls
+                kinematic-body>
+        
+        <a-camera></a-camera>
 
-    <!-- Gracz -->
-    <a-entity id="rig" position="0 2 0"
-              movement-controls="fly: true"
-              universal-controls
-              kinematic-body="radius: 0.4; height: 1.6">
+        <!-- Lewa ręka -->
+        <a-entity hand-controls="hand: left"
+                  super-hands
+                  sphere-collider="objects: a-box"></a-entity>
 
-      <!-- Kamera (widok gracza) -->
-      <a-camera position="0 0 0"></a-camera>
-
-      <!-- Niewidzialne ciało kolizyjne -->
-      <a-cylinder position="0 -0.8 0"
-                  height="1.6"
-                  radius="0.4"
-                  visible="false">
-      </a-cylinder>
-
-      <!-- Lewa ręka -->
-      <a-entity hand-controls="hand: left"
-                super-hands
-                sphere-collider="objects: a-box">
+        <!-- Prawa ręka -->
+        <a-entity hand-controls="hand: right"
+                  super-hands
+                  sphere-collider="objects: a-box"></a-entity>
       </a-entity>
 
-      <!-- Prawa ręka -->
-      <a-entity hand-controls="hand: right"
-                super-hands
-                sphere-collider="objects: a-box">
-      </a-entity>
-    </a-entity>
+      <!-- Interaktywny box -->
+      <a-box position="0 1.5 -3"
+             color="blue"
+             hoverable grabbable stretchable draggable droppable
+             dynamic-body></a-box>
 
-    <!-- Przedmiot do złapania -->
-    <a-box position="0 1 -3"
-           color="blue"
-           hoverable grabbable stretchable draggable droppable>
-    </a-box>
+      <!-- Podłoga z kolizją -->
+      <a-plane rotation="-90 0 0"
+               width="20" height="20"
+               color="#ccc"
+               static-body></a-plane>
 
-    <!-- Podłoga z kolizją -->
-    <a-plane rotation="-90 0 0"
-             width="20"
-             height="20"
-             color="#ccc"
-             static-body>
-    </a-plane>
+      <!-- Ściana testowa -->
+      <a-box position="0 2 -6" depth="0.5" height="4" width="4" color="#aaa" static-body></a-box>
 
-  </a-scene>
-</body>
+    </a-scene>
+  </body>
+</html>
