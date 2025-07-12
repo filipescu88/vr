@@ -1,99 +1,204 @@
 <html>
-  <head>
-    <title>Joystickok</title>
+<head>
+    <title>VR Grab Demo - A-Frame 1.7</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script>
-      AFRAME.registerComponent('move-with-thumbstick', {
-        schema: {
-          speed: { type: 'number', default: 0.1 }
-        },
-        init: function () {
-          this.rig = this.el;
-          this.camera = document.querySelector('#camera');
-          this.direction = new THREE.Vector3();
+</head>
+<body>
+    <a-scene>
+        <!-- Assets -->
+        <a-assets>
+            <a-asset-item id="handLeft" src="https://cdn.aframe.io/controllers/oculus/oculus-left-controller.gltf"></a-asset-item>
+            <a-asset-item id="handRight" src="https://cdn.aframe.io/controllers/oculus/oculus-right-controller.gltf"></a-asset-item>
+        </a-assets>
 
-          this.el.addEventListener('thumbstickmoved', (evt) => {
-            // Pobieramy osie joysticka
-            const x = -evt.detail.x;
-            const y = -evt.detail.y;
-
-            // Pomijamy drobne ruchy
-            if (Math.abs(x) < 0.1 && Math.abs(y) < 0.1) return;
-
-            // Kierunek patrzenia kamery
-            this.camera.object3D.getWorldDirection(this.direction);
-            this.direction.y = 0;
-            this.direction.normalize();
-
-            // Wektor prostopadły do kierunku patrzenia (w prawo)
-            const right = new THREE.Vector3();
-            right.crossVectors(this.direction, this.rig.object3D.up).normalize();
-
-            // Ruch w osi Y joysticka = ruch do przodu/tyłu
-            const moveForwardBackward = this.direction.clone().multiplyScalar(-y * this.data.speed);
-            // Ruch w osi X joysticka = ruch w prawo/lewo
-            const moveLeftRight = right.clone().multiplyScalar(x * this.data.speed);
-
-            // Dodajemy do pozycji rigi
-            this.rig.object3D.position.add(moveForwardBackward);
-            this.rig.object3D.position.add(moveLeftRight);
-          });
-        }
-      });
-    </script>
-  </head>
-  <body>
-    <a-scene vr-mode-ui="enabled: true" background="color: #ECECEC">
-      
-      <!-- Rig z kamerą i kontrolerami -->
-      <a-entity id="rig" position="0 1.6 0" move-with-thumbstick>
-        <a-camera id="camera"></a-camera>
-        
-        <!-- Lewy kontroler z meta-touch-controls i raycasterem -->
-        <a-entity
-          id="leftController"
-          meta-touch-controls="hand: left"
-          raycaster="objects: .clickable"
-          line="color: green">
+        <!-- Meta Touch Controllers -->
+        <a-entity id="leftController" 
+                  meta-touch-controls="hand: left"
+                  raycaster="objects: .grabbable"
+                  grab-control>
+            <a-entity class="controller-model" gltf-model="#handLeft" position="0 0 0" scale="0.03 0.03 0.03"></a-entity>
         </a-entity>
         
-        <!-- Prawy kontroler z meta-touch-controls i raycasterem -->
-        <a-entity
-          id="rightController"
-          meta-touch-controls="hand: right"
-          raycaster="objects: .clickable"
-          line="color: blue">
+        <a-entity id="rightController" 
+                  meta-touch-controls="hand: right"
+                  raycaster="objects: .grabbable"
+                  grab-control>
+            <a-entity class="controller-model" gltf-model="#handRight" position="0 0 0" scale="0.03 0.03 0.03"></a-entity>
         </a-entity>
-      </a-entity>
-      
-      <!-- Klikalny box -->
-      <a-box 
-        class="clickable" 
-        position="0 1.5 -3" 
-        color="red" 
-        depth="0.5" 
-        height="0.5" 
-        width="0.5">
-      </a-box>
-      
-      <!-- Światło -->
-      <a-light type="ambient" color="#888"></a-light>
-      <a-light type="directional" intensity="0.5" position="1 1 0.5"></a-light>
 
-      <!-- Podłoga -->
-      <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
-      
-      <script>
-        // Obsługa kliknięcia na box
-        document.querySelectorAll('.clickable').forEach((el) => {
-          el.addEventListener('click', () => {
-            el.setAttribute('color', '#'+(Math.random()*0xFFFFFF<<0).toString(16));
-            console.log('Box clicked!');
-          });
-        });
-      </script>
-      
+        <!-- Grabbable Objects -->
+        <a-box class="grabbable" 
+               position="0 1.5 -1" 
+               width="0.5" 
+               height="0.5" 
+               depth="0.5" 
+               color="#4CC3D9"
+               grabbable>
+        </a-box>
+        
+        <a-sphere class="grabbable" 
+                  position="-1 1.5 0" 
+                  radius="0.3" 
+                  color="#EF2D5E"
+                  grabbable>
+        </a-sphere>
+
+        <!-- Environment -->
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
+        <a-sky color="#ECECEC"></a-sky>
+        <a-light type="ambient" color="#FFFFFF" intensity="0.5"></a-light>
+        <a-light type="point" position="2 4 0" intensity="0.8"></a-light>
+
+        <!-- Camera -->
+        <a-entity position="0 1.6 0">
+            <a-camera></a-camera>
+        </a-entity>
     </a-scene>
-  </body>
-</html>
 
+    <script>
+        // Register meta-touch-controls component
+        AFRAME.registerComponent('meta-touch-controls', {
+            schema: {
+                hand: {type: 'string', default: 'left'},
+                model: {type: 'boolean', default: true}
+            },
+            
+            init: function () {
+                const hand = this.data.hand;
+                this.el.setAttribute('tracked-controls', {
+                    id: hand === 'left' ? 'OpenVR Controller - Left' : 'OpenVR Controller - Right'
+                });
+                
+                // Button mappings
+                this.buttonMap = {
+                    'trigger': hand + 'Trigger',
+                    'grip': hand + 'Grip',
+                    'thumbstick': hand + 'Thumbstick',
+                    'a-button': hand === 'right' ? 'aButton' : 'xButton',
+                    'b-button': hand === 'right' ? 'bButton' : 'yButton'
+                };
+            }
+        });
+
+        // Grabbable component for objects
+        AFRAME.registerComponent('grabbable', {
+            init: function () {
+                this.grabbed = false;
+                this.grabbingController = null;
+                this.originalParent = this.el.parentNode;
+            },
+            
+            grab: function(controller) {
+                if (this.grabbed) return;
+                
+                this.grabbed = true;
+                this.grabbingController = controller;
+                controller.appendChild(this.el);
+                
+                // Adjust position relative to controller
+                this.el.setAttribute('position', {x: 0, y: 0, z: -0.1});
+                
+                // Add physics constraints if needed
+                this.el.setAttribute('dynamic-body', {mass: 0.1});
+            },
+            
+            release: function() {
+                if (!this.grabbed) return;
+                
+                this.grabbed = false;
+                this.originalParent.appendChild(this.el);
+                
+                // Restore physics
+                this.el.setAttribute('dynamic-body', 'mass', 1);
+                
+                // Apply controller velocity
+                const velocity = this.grabbingController.getAttribute('velocity');
+                this.el.setAttribute('velocity', velocity);
+                
+                this.grabbingController = null;
+            }
+        });
+
+        // Grab control component for controllers
+        AFRAME.registerComponent('grab-control', {
+            init: function () {
+                this.grabbedObject = null;
+                this.raycaster = this.el.components.raycaster;
+                
+                this.onGripDown = this.onGripDown.bind(this);
+                this.onGripUp = this.onGripUp.bind(this);
+                
+                this.el.addEventListener('gripdown', this.onGripDown);
+                this.el.addEventListener('gripup', this.onGripUp);
+            },
+            
+            onGripDown: function () {
+                if (this.grabbedObject) return;
+                
+                const intersections = this.raycaster.intersections;
+                if (intersections.length > 0) {
+                    for (let i = 0; i < intersections.length; i++) {
+                        const el = intersections[i].object.el;
+                        if (el.classList.contains('grabbable') && el.components.grabbable) {
+                            this.grabbedObject = el;
+                            el.components.grabbable.grab(this.el);
+                            break;
+                        }
+                    }
+                }
+            },
+            
+            onGripUp: function () {
+                if (!this.grabbedObject) return;
+                
+                this.grabbedObject.components.grabbable.release();
+                this.grabbedObject = null;
+            },
+            
+            remove: function () {
+                this.el.removeEventListener('gripdown', this.onGripDown);
+                this.el.removeEventListener('gripup', this.onGripUp);
+            }
+        });
+
+        // Optional: Thumbstick movement
+        AFRAME.registerComponent('thumbstick-movement', {
+            init: function () {
+                this.speed = 0.05;
+                this.velocity = new THREE.Vector3();
+                
+                this.onThumbstickMoved = this.onThumbstickMoved.bind(this);
+                this.el.addEventListener('thumbstickmoved', this.onThumbstickMoved);
+            },
+            
+            onThumbstickMoved: function (evt) {
+                const camera = document.querySelector('a-camera');
+                const direction = new THREE.Vector3();
+                
+                // Get camera direction vectors
+                camera.getWorldDirection(direction);
+                direction.y = 0;
+                direction.normalize();
+                
+                // Calculate movement vectors
+                const xAxis = new THREE.Vector3(1, 0, 0);
+                const zAxis = new THREE.Vector3(0, 0, 1);
+                
+                // Apply movement based on thumbstick
+                this.velocity.x = evt.detail.x * this.speed;
+                this.velocity.z = -evt.detail.y * this.speed;
+                
+                // Transform to camera orientation
+                this.velocity.applyMatrix4(camera.object3D.matrix);
+                this.velocity.y = 0;
+                
+                // Update position
+                const position = this.el.getAttribute('position');
+                position.x += this.velocity.x;
+                position.z += this.velocity.z;
+                this.el.setAttribute('position', position);
+            }
+        });
+    </script>
+</body>
+</html>
