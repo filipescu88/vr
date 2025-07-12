@@ -1,98 +1,41 @@
 <html>
   <head>
-    <title>2Joystick</title>
+    <title>Joystick test</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script>
-      AFRAME.registerComponent('move-with-joystick', {
-        schema: {
-          speed: {type: 'number', default: 0.05}
-        },
-        init: function () {
-          this.rig = this.el;
-          this.camera = document.querySelector('#camera');
-        },
-        tick: function () {
-          const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-          if (!gamepads) return;
-
-          const gp = gamepads[0]; // zakładamy, że lewy kontroler jest pod indeksem 0
-          if (!gp) return;
-
-          const yAxis = gp.axes[1]; // oś pionowa joysticka
-
-          if (Math.abs(yAxis) > 0.1) {
-            const cameraObj = this.camera.object3D;
-            const direction = new THREE.Vector3();
-            cameraObj.getWorldDirection(direction);
-            direction.y = 0; // ignorujemy ruch w osi pionowej
-            direction.normalize();
-
-            // joystick do przodu to yAxis = -1, więc odwracamy znak
-            direction.multiplyScalar(-yAxis * this.data.speed);
-
-            const rigPos = this.rig.object3D.position;
-            rigPos.add(direction);
-          }
-        }
-      });
-    </script>
   </head>
   <body>
     <a-scene vr-mode-ui="enabled: true" background="color: #ECECEC">
-      
-      <!-- Kamera + kontrolery + ruch joystickiem -->
+
+      <!-- Rig z kamerą i gamepad-controls -->
       <a-entity id="rig" position="0 1.6 0" 
-                gamepad-controls="enabled: true; movementEnabled: true; sensitivity: 0.1; speed: 0.1"
-                move-with-joystick="speed: 0.1">
-        <a-camera id="camera"></a-camera>
-        
-        <!-- Lewy kontroler z raycasterem i linią -->
-        <a-entity
-          hand-controls="left"
-          raycaster="objects: .clickable"
-          line="color: green"
-          id="leftController"
-          >
-        </a-entity>
-        
-        <!-- Prawy kontroler z raycasterem i linią -->
-        <a-entity
-          hand-controls="right"
-          raycaster="objects: .clickable"
-          line="color: blue"
-          id="rightController"
-          >
-        </a-entity>
+                gamepad-controls="movementEnabled: true; speed: 0.1;">
+        <a-camera id="camera" look-controls></a-camera>
       </a-entity>
-      
+
+      <!-- Kontrolery z raycasterem i linią -->
+      <a-entity hand-controls="left" raycaster="objects: .clickable" line="color: green"></a-entity>
+      <a-entity hand-controls="right" raycaster="objects: .clickable" line="color: blue"></a-entity>
+
       <!-- Klikalny box -->
-      <a-box 
-        class="clickable" 
-        position="0 1.5 -3" 
-        color="red" 
-        depth="0.5" 
-        height="0.5" 
-        width="0.5"
-        >
-      </a-box>
-      
-      <!-- Podstawowe światło -->
+      <a-box class="clickable" position="0 1.5 -3" color="red" depth="0.5" height="0.5" width="0.5"></a-box>
+
+      <!-- Światło -->
       <a-light type="ambient" color="#888"></a-light>
       <a-light type="directional" intensity="0.5" position="1 1 0.5"></a-light>
 
       <!-- Podłoga -->
       <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
-      
+
       <script>
-        // Obsługa kliknięcia na box
+        // Klikalny box zmienia kolor
         document.querySelectorAll('.clickable').forEach((el) => {
           el.addEventListener('click', () => {
-            el.setAttribute('color', '#'+(Math.random()*0xFFFFFF<<0).toString(16)); // zmienia kolor na losowy
+            el.setAttribute('color', '#' + (Math.random() * 0xFFFFFF << 0).toString(16));
             console.log('Box clicked!');
           });
         });
       </script>
-      
+
     </a-scene>
   </body>
 </html>
