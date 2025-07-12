@@ -3,9 +3,11 @@
     <title>VR Room - A-Frame</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.controls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/wmurphyrd/aframe-super-hands-component@v3.0.3/dist/super-hands.min.js"></script>
   </head>
   <body>
-    <a-scene vr-mode-ui="enabled: true" embedded style="height: 100vh; width: 100vw;">
+    <a-scene vr-mode-ui="enabled: true" embedded style="height: 100vh; width: 100vw;" physics="driver: cannon; gravity: -9.8">
       <!-- Assets -->
       <a-assets>
         <!-- Define materials for reuse -->
@@ -20,7 +22,13 @@
           look-controls="enabled: true" 
           wasd-controls="enabled: true; acceleration: 20"
           gamepad-controls="enabled: true; controller: 0; movementControls: true; rotationControls: true"
-          position="0 0 0">
+          position="0 0 0"
+          cursor="rayOrigin: mouse"
+          super-hands="colliderEvent: raycaster-intersection;
+                      colliderEventProperty: els;
+                      colliderEndEvent: raycaster-intersection-cleared;
+                      colliderEndEventProperty: clearedEls;">
+          <a-entity raycaster="objects: .grabbable" position="0 0 -1"></a-entity>
         </a-camera>
       </a-entity>
 
@@ -32,7 +40,8 @@
         position="0 0 0" 
         rotation="-90 0 0" 
         width="6" 
-        height="6">
+        height="6"
+        static-body>
       </a-plane>
       
       <!-- Ceiling -->
@@ -50,7 +59,8 @@
         position="0 1.5 -3" 
         rotation="0 0 0" 
         width="6" 
-        height="3">
+        height="3"
+        static-body>
       </a-plane>
       
       <!-- South Wall -->
@@ -59,7 +69,8 @@
         position="0 1.5 3" 
         rotation="0 180 0" 
         width="6" 
-        height="3">
+        height="3"
+        static-body>
       </a-plane>
       
       <!-- East Wall -->
@@ -68,7 +79,8 @@
         position="3 1.5 0" 
         rotation="0 -90 0" 
         width="6" 
-        height="3">
+        height="3"
+        static-body>
       </a-plane>
       
       <!-- West Wall -->
@@ -77,13 +89,14 @@
         position="-3 1.5 0" 
         rotation="0 90 0" 
         width="6" 
-        height="3">
+        height="3"
+        static-body>
       </a-plane>
 
       <!-- Furniture -->
       
       <!-- Table (positioned in center-left of room) -->
-      <a-entity id="table" position="-1 0 -1">
+      <a-entity id="table" position="-1 0 -1" static-body>
         <!-- Table top -->
         <a-box 
           mixin="furniture-material"
@@ -123,8 +136,14 @@
         </a-box>
       </a-entity>
 
-      <!-- Chair (positioned near table) -->
-      <a-entity id="chair" position="-1 0 0.2">
+      <!-- Chair (positioned near table) - Interactive with physics -->
+      <a-entity id="chair" position="-1 0.5 0.2" 
+        class="grabbable"
+        dynamic-body="mass: 5"
+        grabbable
+        stretchable
+        draggable
+        droppable>
         <!-- Chair seat -->
         <a-box 
           mixin="furniture-material"
