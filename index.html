@@ -1,80 +1,16 @@
 <html>
   <head>
-    <title>VR Room - A-Frame</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/super-hands@3.0.5/dist/super-hands.min.js"></script>
-
   </head>
   <body>
-    <a-scene
-      vr-mode-ui="enabled: true"
-      embedded
-      style="height: 100vh; width: 100vw;"
-      physics="driver: ammo; gravity: -9.8; debug: false;"
-    >
-      <a-assets>
-        <a-mixin id="wall-material" material="color: #E8E8E8; roughness: 0.8"></a-mixin>
-        <a-mixin id="floor-material" material="color: #D4D4D4; roughness: 0.9"></a-mixin>
-        <a-mixin id="furniture-material" material="color: #B8860B; roughness: 0.7"></a-mixin>
-      </a-assets>
+    <a-scene>
+      <a-entity id="leftHand" hand-controls="left" super-hands></a-entity>
+      <a-entity id="rightHand" hand-controls="right" super-hands></a-entity>
 
-      <!-- Camera rig z movement-controls -->
-      <a-entity id="rig" position="0 1.6 2" movement-controls>
-        <a-entity
-          camera
-          position="0 0 0"
-          look-controls
-        >
-          <a-entity
-            cursor="rayOrigin: mouse"
-            raycaster="objects: .grabbable"
-            super-hands
-            position="0 0 -1"
-          ></a-entity>
-        </a-entity>
-      </a-entity>
+      <a-box class="grabbable" grabbable position="0 1 -2" color="blue"></a-box>
 
-      <!-- Room -->
-      <a-plane mixin="floor-material" position="0 0 0" rotation="-90 0 0" width="6" height="6" static-body></a-plane>
-      <a-plane mixin="wall-material" position="0 3 0" rotation="90 0 0" width="6" height="6" static-body></a-plane>
-      <a-plane mixin="wall-material" position="0 1.5 -3" width="6" height="3" static-body></a-plane>
-      <a-plane mixin="wall-material" position="0 1.5 3" rotation="0 180 0" width="6" height="3" static-body></a-plane>
-      <a-plane mixin="wall-material" position="3 1.5 0" rotation="0 -90 0" width="6" height="3" static-body></a-plane>
-      <a-plane mixin="wall-material" position="-3 1.5 0" rotation="0 90 0" width="6" height="3" static-body></a-plane>
-
-      <!-- Table -->
-      <a-entity id="table" position="-1 0 -1" static-body>
-        <a-box mixin="furniture-material" position="0 0.75 0" width="1.5" height="0.05" depth="0.8"></a-box>
-        <a-box mixin="furniture-material" position="-0.65 0.375 -0.35" width="0.05" height="0.75" depth="0.05"></a-box>
-        <a-box mixin="furniture-material" position="0.65 0.375 -0.35" width="0.05" height="0.75" depth="0.05"></a-box>
-        <a-box mixin="furniture-material" position="-0.65 0.375 0.35" width="0.05" height="0.75" depth="0.05"></a-box>
-        <a-box mixin="furniture-material" position="0.65 0.375 0.35" width="0.05" height="0.75" depth="0.05"></a-box>
-      </a-entity>
-
-      <!-- Chair -->
-      <a-entity id="chair" position="-1 0.5 0.2"
-        class="grabbable"
-        dynamic-body="mass: 5"
-        grabbable
-        draggable
-        droppable
-      >
-        <a-box mixin="furniture-material" position="0 0.45 0" width="0.5" height="0.05" depth="0.5"></a-box>
-        <a-box mixin="furniture-material" position="0 0.75 -0.225" width="0.5" height="0.6" depth="0.05"></a-box>
-        <a-box mixin="furniture-material" position="-0.2 0.225 -0.2" width="0.05" height="0.45" depth="0.05"></a-box>
-        <a-box mixin="furniture-material" position="0.2 0.225 -0.2" width="0.05" height="0.45" depth="0.05"></a-box>
-        <a-box mixin="furniture-material" position="-0.2 0.225 0.2" width="0.05" height="0.45" depth="0.05"></a-box>
-        <a-box mixin="furniture-material" position="0.2 0.225 0.2" width="0.05" height="0.45" depth="0.05"></a-box>
-      </a-entity>
-
-      <!-- Lights -->
-      <a-light type="ambient" color="#404040" intensity="0.4"></a-light>
-      <a-light type="point" position="0 2.5 0" color="#FFFFFF" intensity="0.8"></a-light>
-
-      <!-- VR Controllers -->
-      <a-entity laser-controls="hand: left" super-hands></a-entity>
-      <a-entity laser-controls="hand: right" super-hands></a-entity>
+      <a-sky color="#ECECEC"></a-sky>
     </a-scene>
   </body>
 </html>
