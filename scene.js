@@ -23,20 +23,20 @@ if (window.AFRAME) {
       const update = () => {
         const n = activated.size;
         document.querySelector('#progress').textContent = `${n} / 3`;
-        document.querySelector('#status').textContent = n === 3 ? 'Ogród znów żyje. Dziękujemy, odkrywco.' : 'Kliknij trzy unoszące się kryształy.';
+        document.querySelector('#status').textContent = n === 3 ? 'Ogród znów żyje. Dziękujemy, odkrywco.' : 'Traf trzy kryształy z karabinka MOHAC.';
         document.querySelector('#world-progress').setAttribute('text', 'value', n === 3 ? 'GARDEN ONLINE / ALL CRYSTALS ACTIVE' : `ENERGY ${n} / 3`);
         document.querySelector('#core').setAttribute('material', 'emissiveIntensity', n === 3 ? 1.8 : 0.1 + n * 0.25);
       };
       [[-3, 1.5, -3], [3, 1.7, -4], [0.8, 1.3, -7]].forEach(([x, y, z], i) => {
-        make('a-cylinder', {position: `${x} 0.18 ${z}`, radius: 0.65, height: 0.36, color: '#384f58'});
+        make('a-cylinder', {class: 'shot-blocker', position: `${x} 0.18 ${z}`, radius: 0.65, height: 0.36, color: '#384f58'});
         make('a-torus', {position: `${x} 0.37 ${z}`, rotation: '-90 0 0', radius: 0.5, 'radius-tubular': 0.02, material: 'shader: flat; color: #e7c99b'});
         const crystal = make('a-octahedron', {
-          class: 'interactive', position: `${x} ${y} ${z}`, radius: 0.5, scale: '0.75 1.4 0.75',
+          class: 'shootable', position: `${x} ${y} ${z}`, radius: 0.5, scale: '0.75 1.4 0.75',
           material: 'color: #e7c99b; emissive: #e7c99b; emissiveIntensity: 0.15; roughness: 0.25; metalness: 0.3',
           animation: `property: position; to: ${x} ${y + 0.25} ${z}; dir: alternate; loop: true; dur: ${1800 + i * 300}; easing: easeInOutSine`,
           animation__spin: 'property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear'
         });
-        crystal.addEventListener('click', () => {
+        crystal.addEventListener('crystal-hit', () => {
           if (activated.has(i)) return;
           activated.add(i);
           crystal.setAttribute('material', 'color', '#8bffe0');
@@ -63,7 +63,7 @@ if (window.AFRAME) {
         const x = Math.cos(angle) * radius;
         const z = -3 + Math.sin(angle) * radius;
         const height = 0.45 + (i % 5) * 0.22;
-        make('a-cone', {position: `${x} ${height / 2} ${z}`, height, 'radius-bottom': 0.35, 'radius-top': 0, 'segments-radial': 5, color: ['#589a91', '#386d70', '#87b9a3'][i % 3]});
+        make('a-cone', {class: 'shot-blocker', position: `${x} ${height / 2} ${z}`, height, 'radius-bottom': 0.35, 'radius-top': 0, 'segments-radial': 5, color: ['#589a91', '#386d70', '#87b9a3'][i % 3]});
         if (i % 3 === 0) make('a-sphere', {position: `${x} ${height + 0.12} ${z}`, radius: 0.07, material: 'shader: flat; color: #ffdcac'});
       }
       const positions = [];
@@ -82,6 +82,7 @@ if (window.AFRAME) {
         activated.clear();
         crystals.forEach(el => el.setAttribute('material', {color: '#e7c99b', emissive: '#e7c99b', emissiveIntensity: 0.15}));
         teleport(0, 3);
+        scene.emit('garden-reset');
         update();
       };
       document.querySelector('#reset').addEventListener('click', this.reset);

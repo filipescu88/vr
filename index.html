@@ -5,31 +5,31 @@
 <meta name="theme-color" content="#080f20"><meta name="description" content="Orbital Garden — interaktywna scena VR z kryształami i teleportacją.">
 <title>Orbital Garden · VR</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><script src="scene.js"></script>
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><script src="scene.js"></script><script src="shooting.js"></script>
 </head>
 <body>
 <header class="hud"><div class="eyebrow">● STACJA 07 / SCENA VR</div><h1>Orbital Garden<span>.</span></h1><p>Mały ogród. Nieskończona przestrzeń.</p></header>
-<aside class="mission"><span class="eyebrow">PRZYWRÓĆ ENERGIĘ</span><strong id="progress" aria-live="polite">0 / 3</strong><p id="status">Kliknij trzy unoszące się kryształy.</p><button id="reset" type="button">Zacznij od nowa ↗</button></aside>
-<footer class="guide"><span><b>ROZEJRZYJ SIĘ</b> Przeciągnij widok</span><span><b>ODKRYWAJ</b> Klikaj kryształy i jasne pola</span><span><b>GOGLE VR</b> Przycisk VR · laser + spust</span></footer>
+<aside class="mission"><span class="eyebrow">PRZYWRÓĆ ENERGIĘ</span><strong id="progress" aria-live="polite">0 / 3</strong><p id="status">Traf trzy kryształy z karabinka MOHAC.</p><p id="weapon-status" role="status">Ładowanie MOHAC…</p><p id="shots">Strzały: 0</p><button id="reset" type="button">Zacznij od nowa ↗</button></aside>
+<footer class="guide"><span><b>ROZEJRZYJ SIĘ</b> Przeciągnij widok</span><span><b>ODKRYWAJ</b> Celuj myszą · kliknij, by strzelić</span><span><b>GOGLE VR</b> Prawa: strzał · lewa: teleport</span></footer>
 <div id="loading" role="status">Przygotowywanie ogrodu…</div><noscript>Włącz JavaScript, aby uruchomić scenę VR.</noscript>
-<a-scene garden renderer="antialias: true; colorManagement: true" background="color: #080f20" fog="type: exponential; color: #080f20; density: 0.008" xr-mode-ui="enabled: true">
+<a-scene garden crystal-shooter renderer="antialias: true; colorManagement: true" background="color: #080f20" fog="type: exponential; color: #080f20; density: 0.008" xr-mode-ui="enabled: true">
 <a-entity light="type: ambient; color: #aac9ff; intensity: 1.1"></a-entity>
 <a-entity light="type: directional; color: #ffe0b5; intensity: 2" position="-3 8 4"></a-entity>
 <a-entity light="type: point; color: #68ffe0; intensity: 1.5; distance: 18" position="0 3 -4"></a-entity>
-<a-cylinder position="0 -0.3 -3" radius="8" height="0.6" segments-radial="64" color="#243743"></a-cylinder>
+<a-cylinder class="shot-blocker" position="0 -0.3 -3" radius="8" height="0.6" segments-radial="64" color="#243743"></a-cylinder>
 <a-torus position="0 0.025 -3" rotation="-90 0 0" radius="7.7" radius-tubular="0.025" material="shader: flat; color: #72e9d1"></a-torus>
-<a-cylinder position="0 0.08 -4" radius="1.8" height="0.16" color="#42595e"></a-cylinder>
+<a-cylinder class="shot-blocker" position="0 0.08 -4" radius="1.8" height="0.16" color="#42595e"></a-cylinder>
 <a-torus position="0 0.18 -4" rotation="-90 0 0" radius="1.55" radius-tubular="0.02" material="shader: flat; color: #e4ba7a"></a-torus>
 <a-entity position="0 2.4 -4" animation="property: rotation; to: 0 360 0; loop: true; dur: 45000; easing: linear">
 <a-torus radius="1.1" radius-tubular="0.045" rotation="20 0 30" color="#eacb92" material="metalness: 0.6; roughness: 0.3"></a-torus>
 <a-torus radius="0.85" radius-tubular="0.035" rotation="75 30 0" color="#8be4d4"></a-torus>
-<a-icosahedron id="core" radius="0.43" color="#658d94" material="emissive: #71ffe0; emissiveIntensity: 0.1; metalness: 0.3; roughness: 0.25"></a-icosahedron>
+<a-icosahedron class="shot-blocker" id="core" radius="0.43" color="#658d94" material="emissive: #71ffe0; emissiveIntensity: 0.1; metalness: 0.3; roughness: 0.25"></a-icosahedron>
 </a-entity>
 <a-entity position="0 4.3 -5" text="value: ORBITAL GARDEN; align: center; color: #c5e9e4; width: 8"></a-entity>
 <a-entity id="world-progress" position="0 3.85 -5" text="value: ENERGY 0 / 3; align: center; color: #eacb92; width: 4"></a-entity>
 <a-entity id="garden-objects"></a-entity>
 <a-entity position="-18 14 -42"><a-sphere radius="8" color="#48737e" segments-width="48"></a-sphere><a-torus radius="12" radius-tubular="0.15" rotation="65 20 -20" color="#baa685"></a-torus><a-torus radius="12.5" radius-tubular="0.045" rotation="65 20 -20" color="#7c938f"></a-torus></a-entity>
-<a-entity id="rig" position="0 0 3"><a-camera id="head" wasd-controls="enabled: false" position="0 1.6 0"></a-camera><a-entity laser-controls="hand: left" raycaster="objects: .interactive; far: 25; lineColor: #8bffe0"></a-entity><a-entity laser-controls="hand: right" raycaster="objects: .interactive; far: 25; lineColor: #8bffe0"></a-entity></a-entity>
+<a-entity id="rig" position="0 0 3"><a-camera id="head" wasd-controls="enabled: false" position="0 1.6 0"></a-camera><a-entity laser-controls="hand: left" raycaster="objects: .interactive; far: 25; lineColor: #8bffe0"></a-entity><a-entity id="right-hand" laser-controls="hand: right; model: false" raycaster="objects: .unused; showLine: false; lineOpacity: 0"></a-entity></a-entity>
 <a-entity id="mouse" cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .interactive; far: 50"></a-entity>
 </a-scene>
 </body></html>
