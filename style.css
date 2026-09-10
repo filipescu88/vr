@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #080f20; color: #edf5ef; font-family: 'Segoe UI', sans-serif; }
+.hud, .mission, .guide { position: fixed; z-index: 2; }
+.hud { top: 36px; left: 40px; pointer-events: none; }
+.eyebrow { font-size: 10px; letter-spacing: 2.5px; font-weight: 600; color: #a9c1c1; }
+h1 { font-size: clamp(26px, 4vw, 48px); font-weight: 400; letter-spacing: -2px; margin: 10px 0; }
+h1 span { color: #8bffe0; }
+p { color: #aec4c6; font-size: 13px; line-height: 1.6; margin: 6px 0; }
+.mission { right: 36px; top: 36px; width: 210px; padding: 20px; border: 1px solid #779c9b40; border-radius: 12px; background: #0b1b29c9; backdrop-filter: blur(12px); }
+.mission strong { display: block; font-size: 36px; font-weight: 300; margin: 8px 0; color: #8bffe0; }
+button { margin-top: 12px; border: 0; padding: 10px 0; color: #e7d2a9; background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
+button:hover { color: white; }
+button:focus-visible { outline: 2px solid #8bffe0; outline-offset: 4px; }
+.guide { bottom: 28px; left: 40px; right: 110px; display: flex; gap: 28px; pointer-events: none; }
+.guide span { font-size: 11px; color: #b7c8cc; }
+.guide b { display: block; color: #e7d2a9; font-size: 9px; letter-spacing: 1.5px; margin-bottom: 5px; }
+#loading { position: fixed; z-index: 5; bottom: 100px; left: 50%; transform: translateX(-50%); padding: 16px 24px; border-radius: 10px; background: #132936; max-width: 90vw; text-align: center; }
+body.in-vr .hud, body.in-vr .mission, body.in-vr .guide { display: none; }
+@media (max-width: 650px) { .hud { top: 20px; left: 20px; } .hud p { display: none; } .mission { top: auto; bottom: 100px; right: 16px; width: 165px; padding: 14px; } .mission strong { font-size: 26px; } .guide { left: 20px; bottom: 20px; gap: 14px; } .guide span { font-size: 10px; } .guide span:last-child { display: none; } }
