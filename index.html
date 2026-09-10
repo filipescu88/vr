@@ -4,12 +4,15 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080f20"><meta name="description" content="Orbital Garden — interaktywna scena VR z kryształami i teleportacją.">
 <title>Orbital Garden · VR</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><script src="scene.js"></script><script src="shooting.js"></script>
+<link rel="stylesheet" href="style.css?v=mobile-menu-1">
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><script src="scene.js"></script><script src="shooting.js"></script><script src="ui.js" defer></script>
 </head>
 <body>
 <header class="hud"><div class="eyebrow">● STACJA 07 / SCENA VR</div><h1>Orbital Garden<span>.</span></h1><p>Mały ogród. Nieskończona przestrzeń.</p></header>
-<aside class="mission"><span class="eyebrow">PRZYWRÓĆ ENERGIĘ</span><strong id="progress" aria-live="polite">0 / 3</strong><p id="status">Traf trzy kryształy z karabinka MOHAC.</p><p id="weapon-status" role="status">Ładowanie MOHAC…</p><p id="shots">Strzały: 0</p><button id="reset" type="button">Zacznij od nowa ↗</button></aside>
+<details class="mission" id="mission-menu">
+<summary aria-label="Menu gry i wynik"><span class="eyebrow">PRZYWRÓĆ ENERGIĘ</span><span class="mobile-menu-label">Menu</span><strong id="progress" aria-live="polite">0 / 3</strong><span class="menu-chevron" aria-hidden="true">⌄</span></summary>
+<div class="mission-content"><p id="status">Traf trzy kryształy z karabinka MOHAC.</p><p id="weapon-status" role="status">Ładowanie MOHAC…</p><p id="shots">Strzały: 0</p><p class="touch-help">Przeciągnij, aby się rozejrzeć. Stuknij kryształ, aby strzelić, albo jasne pole, aby się przenieść.</p><button id="reset" type="button">Zacznij od nowa ↗</button></div>
+</details>
 <footer class="guide"><span><b>ROZEJRZYJ SIĘ</b> Przeciągnij widok</span><span><b>ODKRYWAJ</b> Celuj myszą · kliknij, by strzelić</span><span><b>GOGLE VR</b> Prawa: strzał · lewa: teleport</span></footer>
 <div id="loading" role="status">Przygotowywanie ogrodu…</div><noscript>Włącz JavaScript, aby uruchomić scenę VR.</noscript>
 <a-scene garden crystal-shooter renderer="antialias: true; colorManagement: true" background="color: #080f20" fog="type: exponential; color: #080f20; density: 0.008" xr-mode-ui="enabled: true">

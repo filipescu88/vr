@@ -16,4 +16,24 @@ button:focus-visible { outline: 2px solid #8bffe0; outline-offset: 4px; }
 .guide b { display: block; color: #e7d2a9; font-size: 9px; letter-spacing: 1.5px; margin-bottom: 5px; }
 #loading { position: fixed; z-index: 5; bottom: 100px; left: 50%; transform: translateX(-50%); padding: 16px 24px; border-radius: 10px; background: #132936; max-width: 90vw; text-align: center; }
 body.in-vr .hud, body.in-vr .mission, body.in-vr .guide { display: none; }
-@media (max-width: 650px) { .hud { top: 20px; left: 20px; } .hud p { display: none; } .mission { top: auto; bottom: 100px; right: 16px; width: 165px; padding: 14px; } .mission strong { font-size: 26px; } .guide { left: 20px; bottom: 20px; gap: 14px; } .guide span { font-size: 10px; } .guide span:last-child { display: none; } }
+
+.mission summary { list-style: none; cursor: pointer; }
+.mission summary::-webkit-details-marker { display: none; }
+.mission summary:focus-visible { outline: 2px solid #8bffe0; outline-offset: 4px; border-radius: 6px; }
+.mobile-menu-label, .menu-chevron, .touch-help { display: none; }
+@media (max-width: 650px), (max-height: 500px) and (pointer: coarse) {
+  .hud { top: calc(12px + env(safe-area-inset-top)); left: calc(14px + env(safe-area-inset-left)); right: 160px; }
+  .hud .eyebrow, .hud p { display: none; }
+  .hud h1 { font-size: 18px; letter-spacing: -0.8px; line-height: 44px; margin: 0; }
+  .mission { top: calc(12px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); bottom: auto; width: auto; padding: 0; border-radius: 12px; }
+  .mission summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 0 12px; }
+  .mission summary .eyebrow { display: none; }
+  .mission strong { font-size: 16px; font-weight: 500; margin: 0; white-space: nowrap; }
+  .mobile-menu-label, .menu-chevron { display: inline; font-size: 13px; }
+  .mission[open] { width: min(260px, calc(100vw - 24px)); }
+  .mission[open] .menu-chevron { transform: rotate(180deg); }
+  .mission-content { padding: 0 16px 12px; max-height: min(360px, calc(100dvh - 100px)); overflow-y: auto; overscroll-behavior: contain; }
+  .touch-help { display: block; padding-top: 10px; border-top: 1px solid #779c9b40; }
+  .mission button { min-height: 44px; margin-top: 4px; }
+  .guide { display: none; }
+}
